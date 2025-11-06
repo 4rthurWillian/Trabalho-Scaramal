@@ -1,36 +1,157 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD Básico</title>
-   
+    <title>CRUD Simples</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input {
+            padding: 5px;
+            margin: 2px;
+        }
+        button {
+            padding: 5px 10px;
+            margin: 2px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <div>
-        <h1>CRUD Básico</h1>
+    <h2>Cadastro de Pessoas</h2>
+    
+    <!-- Formulário para inserir -->
+    <form id="formUsuario">
+        <h3>Adicionar Novo:</h3>
+        <input type="text" id="nome" placeholder="Nome" required>
+        <button type="submit">Adicionar</button>
+    </form>
 
-        <form id="form-registro">
-            <input type="text" id="nome-input" placeholder="Digite um nome" required>
-            <input type="hidden" id="id-editando" value="">
-            <button type="submit" id="btn-submit">Incluir</button>
-            <button type="button" id="btn-cancelar" style="display:none;">Cancelar</button>
-        </form>
+    <hr>
 
-        <h2>Registros</h2>
-        <table id="tabela-registros">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody id="tabela-corpo">
-            </tbody>
-        </table>
-    </div>
+    <!-- Tabela de usuários -->
+    <h3>Pessoas Cadastradas:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="tabelaUsuarios">
+        </tbody>
+    </table>
 
-    <script src="script.js"></script>
+    <script>
+        // Banco de dados usando localStorage
+        function getUsuarios() {
+            const usuarios = localStorage.getItem('usuarios');
+            return usuarios ? JSON.parse(usuarios) : [];
+        }
+
+        function salvarUsuarios(usuarios) {
+            localStorage.setItem('usuarios', JSON.stringify(usuarios));
+        }
+
+        // Função para inserir usuário
+        function inserirUsuario(nome) {
+            const usuarios = getUsuarios();
+            const novoId = usuarios.length > 0 ? Math.max(...usuarios.map(u => u.id)) + 1 : 1;
+            
+            usuarios.push({
+                id: novoId,
+                nome: nome
+            });
+            
+            salvarUsuarios(usuarios);
+            carregarUsuarios();
+        }
+
+        // Função para atualizar usuário
+        function atualizarUsuario(id) {
+            const inputElement = document.getElementById('nome-input-' + id);
+            const novoNome = inputElement.value;
+            
+            const usuarios = getUsuarios();
+            const usuario = usuarios.find(u => u.id === id);
+            
+            if (usuario && novoNome.trim() !== '') {
+                usuario.nome = novoNome.trim();
+                salvarUsuarios(usuarios);
+                carregarUsuarios();
+                alert('Nome alterado com sucesso!');
+            }
+        }
+
+        // Função para excluir usuário
+        function excluirUsuario(id) {
+            if (confirm('Tem certeza que deseja excluir?')) {
+                const usuarios = getUsuarios();
+                const novosUsuarios = usuarios.filter(u => u.id !== id);
+                salvarUsuarios(novosUsuarios);
+                carregarUsuarios();
+            }
+        }
+
+        // Função para carregar e exibir usuários na tabela
+        function carregarUsuarios() {
+            const usuarios = getUsuarios();
+            const tabela = document.getElementById('tabelaUsuarios');
+            tabela.innerHTML = '';
+            
+            if (usuarios.length === 0) {
+                tabela.innerHTML = '<tr><td colspan="3">Nenhuma pessoa cadastrada.</td></tr>';
+                return;
+            }
+            
+            usuarios.forEach(usuario => {
+                const tr = document.createElement('tr');
+                
+                tr.innerHTML = `
+                    <td>${usuario.id}</td>
+                    <td>
+                        <input type="text" 
+                               value="${usuario.nome}" 
+                               id="nome-input-${usuario.id}"
+                               style="width: 200px;">
+                    </td>
+                    <td>
+                        <button onclick="atualizarUsuario(${usuario.id})">Alterar</button>
+                        <button onclick="excluirUsuario(${usuario.id})">Excluir</button>
+                    </td>
+                `;
+                
+                tabela.appendChild(tr);
+            });
+        }
+
+        // Evento do formulário
+        document.getElementById('formUsuario').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nomeInput = document.getElementById('nome');
+            const nome = nomeInput.value.trim();
+            
+            if (nome) {
+                inserirUsuario(nome);
+                nomeInput.value = '';
+            } else {
+                alert('Por favor, digite um nome!');
+            }
+        });
+
+        // Carregar usuários quando a página abrir
+        carregarUsuarios();
+    </script>
 </body>
 </html>
