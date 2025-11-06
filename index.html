@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Básico</title>
+   
+</head>
+<body>
+    <div>
+        <h1>CRUD Básico</h1>
+
+        <form id="form-registro">
+            <input type="text" id="nome-input" placeholder="Digite um nome" required>
+            <input type="hidden" id="id-editando" value="">
+            <button type="submit" id="btn-submit">Incluir</button>
+            <button type="button" id="btn-cancelar" style="display:none;">Cancelar</button>
+        </form>
+
+        <h2>Registros</h2>
+        <table id="tabela-registros">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-corpo">
+            </tbody>
+        </table>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
